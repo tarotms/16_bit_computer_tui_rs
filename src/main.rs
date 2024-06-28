@@ -5,9 +5,15 @@
  * www.youtube.com/@OnigirazuNori
  */
 
-mod logic;
+mod gate;
 mod utils;
 
 fn main() {
-    utils::test_logic_gate(logic::nand);
+    let mut timer = utils::Timer::new();
+
+    
+    utils::test_logic_gate(gate::xor);
+
+
+    timer.stop(&"Run time");
 }
