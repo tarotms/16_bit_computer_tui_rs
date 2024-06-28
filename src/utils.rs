@@ -35,7 +35,7 @@ pub fn format(head: &str, body: &str) -> String {
     format!("{:width$} -> {}\n", head, body, width = 20)
 }
 
-pub fn test_logic_gate(func: fn(bool, bool) -> bool) {
+pub fn test_gate(func: fn(bool, bool) -> bool) {
     println!("┌───┬───┬───┐");
     println!("│ A │ B │ O │");
     println!("├───┼───┼───┤");
@@ -50,6 +50,49 @@ pub fn test_logic_gate(func: fn(bool, bool) -> bool) {
         println!("{}", str_buffer);
     }
     println!("└───┴───┴───┘");
+}
+
+pub fn test_half_adder(func: fn(bool, bool) -> (bool, bool)) {
+    println!("┌───┬───┬───┬───┐");
+    println!("│ A │ B │ So│ Co│");
+    println!("├───┼───┼───┼───┤");
+    for num in 0..4 {
+        let a = (num & 1) != 0;
+        let b = (num & 2) != 0;
+        let (sum, carry) = func(a, b);
+        let str_buffer = format!(
+            "│ {} │ {} │ {} │ {} │",
+            a as u8,
+            b as u8,
+            sum as u8,
+            carry as u8
+            );
+        println!("{}", str_buffer);
+    }
+    println!("└───┴───┴───┴───┘");
+}
+
+
+pub fn test_full_adder(func: fn(bool, bool, bool) -> (bool, bool)) {
+    println!("┌───┬───┬───┬───┬───┐");
+    println!("│ A │ B │ Ci│ So│ Co│");
+    println!("├───┼───┼───┼───┼───┤");
+    for num in 0..8 {
+        let a = (num & 1) != 0;
+        let b = (num & 2) != 0;
+        let cin = (num & 4) != 0;
+        let (sum, carry) = func(a, b, cin);
+        let str_buffer = format!(
+            "│ {} │ {} │ {} │ {} │ {} │",
+            a as u8,
+            b as u8,
+            cin as u8,
+            sum as u8,
+            carry as u8
+            );
+        println!("{}", str_buffer);
+    }
+    println!("└───┴───┴───┴───┴───┘");
 }
 
 pub fn u16_to_bool_array(value: u16) -> [bool; 16] {

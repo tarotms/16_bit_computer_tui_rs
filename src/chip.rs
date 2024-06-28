@@ -30,7 +30,7 @@ pub fn adder16(
     let mut carry = initial_carry;
     let mut next_carry;
 
-    for i in 0..16 {
+    for i in (0..16).rev() {
         let result = full_adder(a[i], b[i], carry);
         sum[i] = result.0;
         next_carry = result.1;
