@@ -14,7 +14,7 @@ use program_count::ProgramCount;
 
 fn main() {
     let mut timer = utils::Timer::new();
-
+    /**/
     let mut pc = ProgramCount::new();
 
     pc.echo();
@@ -26,6 +26,6 @@ fn main() {
         pc.echo();
 
     }
-
+    
     timer.stop(&"Run time");
 }

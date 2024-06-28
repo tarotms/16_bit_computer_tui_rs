@@ -1,4 +1,4 @@
-use crate::{gate, utils::visualize16};
+use crate::gate;
 
 pub fn half_adder(
     a: bool,
