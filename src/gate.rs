@@ -60,8 +60,44 @@ pub fn not16(
     a: &[bool;16]
 ) -> [bool;16] {
     let mut out: [bool; 16] = [false; 16];
-    for index in 0..a.len() {
+    for index in 0..16 {
         out[index] = not(a[index]);
+    }
+    out
+}
+
+pub fn and16(
+    a: &[bool;16],
+    b: &[bool;16]
+) -> [bool;16] {
+    let mut out: [bool; 16] = [false; 16];
+    for index in 0..16 {
+        out[index] = and(a[index], b[index]);
+    }
+    out
+}
+
+pub fn or16(
+    a: &[bool;16],
+    b: &[bool;16]
+) -> [bool;16] {
+    let mut out: [bool; 16] = [false; 16];
+    for index in 0..16 {
+        out[index] = or(a[index], b[index]);
+    }
+    out
+}
+
+pub fn mux16(
+    a: &[bool;16],
+    b: &[bool;16],
+    sel: bool
+) -> [bool;16] {
+    let mut out: [bool; 16] = [false; 16];
+    if sel {
+        out = *b;
+    } else {
+        out = *a;
     }
     out
 }
