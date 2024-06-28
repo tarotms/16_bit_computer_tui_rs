@@ -7,12 +7,13 @@
 
 mod gate;
 mod utils;
+mod chip;
 
 fn main() {
     let mut timer = utils::Timer::new();
 
-    
-    utils::test_logic_gate(gate::xor);
+
+    utils::test_logic_gate(gate::nor);
 
 
     timer.stop(&"Run time");

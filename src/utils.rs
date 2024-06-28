@@ -1,3 +1,4 @@
+use core::panic;
 use std::time::Instant;
 
 pub struct Timer {

@@ -6,27 +6,62 @@
  * 
  */
 
-pub fn nand(x: bool, y: bool) -> bool {
-    !(x && y)
+pub fn nand(a: bool, b: bool) -> bool {
+    !(a && b)
 }
 
-pub fn notx(x: bool, _y: bool) -> bool {
-    nand(x, x)
+pub fn not(
+    a: bool,
+) -> bool {
+    nand(a, a)
 }
 
-pub fn noty(_x: bool, y: bool) -> bool {
-    nand(y, y)
+pub fn or(
+    a: bool,
+    b: bool
+) -> bool {
+    nand(not(a), not(b))
 }
 
-pub fn or(x: bool, y: bool) -> bool {
-    nand(notx(x, y), noty(x, y))
+pub fn and(
+    a: bool,
+    b: bool
+) -> bool {
+    nand(nand(a, b), nand(a, b))
 }
 
-pub fn and(x: bool, y: bool) -> bool {
-    nand(nand(x, y), nand(x, y))
+pub fn xor(
+    a: bool,
+    b: bool
+) -> bool {
+    or(and(a, not(b)), and(not(a), b))
 }
 
-pub fn xor(x: bool, y: bool) -> bool {
-    or(and(x, noty(x, y)), and(notx(x, y), y)) 
+pub fn nor(
+    a: bool,
+    b: bool
+) -> bool {
+    not(or(a, b))
 }
 
+pub fn mux(
+    a: bool,
+    b: bool,
+    sel: bool
+) -> bool {
+    if sel {
+        b
+    } else {
+        a
+    }
+}
+
+pub fn not16(
+    a: &[bool;16]
+) -> [bool;16] {
+    let mut out: [bool; 16] = [false; 16];
+    for index in 0..a.len() {
+        out[index] = not(a[index]);
+    }
+    out
+}
