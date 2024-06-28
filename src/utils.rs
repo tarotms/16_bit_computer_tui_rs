@@ -51,3 +51,18 @@ pub fn test_logic_gate(func: fn(bool, bool) -> bool) {
     }
     println!("└───┴───┴───┘");
 }
+
+pub fn u16_to_bool_array(value: u16) -> [bool; 16] {
+    let mut array = [false; 16];
+    for i in 0..16 {
+        array[15 - i] = (value & (1 << i)) != 0;
+    }
+    array
+}
+
+pub fn visualize16(array: &[bool; 16]) {
+    for bit in array.iter() {
+        print!("{}", if *bit { "1" } else { "0" });
+    }
+    println!();
+}
