@@ -40,14 +40,6 @@ pub fn adder16(
     (sum, carry)
 }
 
-pub fn increment16(a: &[bool; 16]) -> [bool; 16] {
-    let b = [true, false, false, false, false, false, false, false,
-             false, false, false, false, false, false, false, false];
-
-    let (sum, _carry_out) = adder16(a, &b, false);
-    sum
-}
-
 pub fn alu16(
     x: &[bool; 16],
     y: &[bool; 16],

@@ -8,18 +8,24 @@
 mod gate;
 mod utils;
 mod chip;
-mod register;
+mod program_count;
+
+use program_count::ProgramCount;
 
 fn main() {
     let mut timer = utils::Timer::new();
 
-    /* todo : fix adder16 
-    let a = utils::u16_to_bool_array(0b0000000000000001);
-    let b = utils::u16_to_bool_array(0b0000010000000001);
-    let initial_carry = false;
-    let (result, carry) = chip::adder16(&a, &b, initial_carry);
-    utils::visualize16(&result);
-    */
+    let mut pc = ProgramCount::new();
+
+    pc.echo();
+
+    for _ in 0..10 {
+
+        pc.update(&[false; 16], true, false, false);
+
+        pc.echo();
+
+    }
 
     timer.stop(&"Run time");
 }
