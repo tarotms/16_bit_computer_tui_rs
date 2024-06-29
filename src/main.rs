@@ -5,9 +5,7 @@
  * www.youtube.com/@OnigirazuNori
  */
 
-mod gate;
 mod utils;
-mod chip;
 mod program_count;
 mod atomic;
 
@@ -24,10 +22,9 @@ fn main() {
 
     let duration = Duration::from_secs(1);
     let start = Instant::now();
-
     while Instant::now() - start < duration {
 
-        pc.update(&[false; 16], true, false, false);
+        pc.update(1, true, false, false);
         atomic::CLOCK_ITERATIONS.fetch_add(1, Ordering::SeqCst);
         
     }
@@ -35,12 +32,10 @@ fn main() {
     pc.echo();
 
     utils::msg(
-        "NAND_CALL_COUNTS", 
-        atomic::NAND_CALL_COUNTS.load(Ordering::SeqCst));
-
-    utils::msg(
         "Number of clock iterations in one second:", 
         atomic::CLOCK_ITERATIONS.load(Ordering::SeqCst));
 
     timer.stop(&"Run time");
+
 }
+

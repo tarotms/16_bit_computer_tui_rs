@@ -11,7 +11,6 @@ use std::sync::atomic::Ordering;
 use crate::atomic;
 
 pub fn nand(a: bool, b: bool) -> bool {
-    atomic::NAND_CALL_COUNTS.fetch_add(1, Ordering::SeqCst);
     !(a && b)
 }
 

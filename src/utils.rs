@@ -101,29 +101,8 @@ pub fn test_full_adder(func: fn(bool, bool, bool) -> (bool, bool)) {
 }
 */
 
-pub fn visualize16b(array: &[bool; 16]) {
-    for bit in array.iter() {
-        print!("{}", if *bit { "1" } else { "0" });
-    }
-    println!();
-}
-
-pub fn _visualize16d(array: &[bool; 16]) {
-    let mut value: u16 = 0;
-    for (index, &bit) in array.iter().enumerate() {
-        if bit {
-            value |= 1 << (15 - index);
-        }
-    }
-    println!("{}", value);
-}
-
-pub fn _visualize16h(array: &[bool; 16]) {
-    let mut value: u16 = 0;
-    for (index, &bit) in array.iter().enumerate() {
-        if bit {
-            value |= 1 << (15 - index);
-        }
-    }
-    println!("0x{:04X}", value);
+pub fn visualize16(value: u16) {
+    msg("Bin", format!("0b{:016b}", value));
+    //msg("Hex", format!("0x{:04X}", value));
+    
 }

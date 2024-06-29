@@ -1,49 +1,38 @@
-use crate::chip;
 use crate::utils;
 pub struct ProgramCount {
-    count: [bool; 16],
-    ones: [bool; 16],
+    count: u16,
 }
 
 impl ProgramCount {
     pub fn new() -> ProgramCount {
-        let init: [bool; 16] = [false; 16];
-        let mut ones_arr: [bool; 16] = [false; 16];
-        ones_arr[15] = true;
 
         ProgramCount {
-            count: init,
-            ones: ones_arr
+            count: 0,
         }
     }
 
-    pub fn update(&mut self, input: &[bool; 16], inc: bool, reset: bool, load: bool) {
+    pub fn update(&mut self, input: u16, inc: bool, reset: bool, load: bool) {
         if reset {
-            self.count.fill(false);
+            self.count = 0;
         } else if load {
-            self.count = *input;
+            self.count = input;
         } else if inc {
             self.increment();
         }
     }
 
+    /* replace manual implementation with built-in implementation */
     fn increment(&mut self) {
-        
-        let mut carry = true;
-
-        for i in (0..16).rev() {
-            let result = chip::full_adder(
-                self.count[i], self.ones[i], carry);
-            
-            self.count[i] = result.0;
-            carry = result.1;
-            
+        let (new_count, overflowed) = self.count.overflowing_add(1);
+        if overflowed {
+            self.count = 0;
+        } else {
+            self.count = new_count;
         }
-
     }
 
     pub fn echo(&self) {
-        utils::visualize16b(&self.count);
+        utils::visualize16(self.count);
     }
 
 }

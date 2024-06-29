@@ -1,6 +1,6 @@
 //use crate::gate;
 
-pub fn half_adder(
+pub fn _half_adder(
     a: bool,
     b: bool
 ) -> (bool, bool) {
@@ -13,7 +13,7 @@ pub fn half_adder(
     (a^b, a&&b)
 }
 
-pub fn full_adder(
+pub fn _full_adder(
     a: bool,
     b: bool,
     cin: bool
@@ -26,8 +26,8 @@ pub fn full_adder(
     //(sum_2, carry_out)
 
     /* built-in implementatiln */
-    let (sum_1, _) = half_adder(a, b);
-    let (sum_2, _) = half_adder(sum_1, cin);
+    let (sum_1, _) = _half_adder(a, b);
+    let (sum_2, _) = _half_adder(sum_1, cin);
     (sum_2, a || b)
 }
 
