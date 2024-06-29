@@ -11,23 +11,21 @@ impl ProgramCount {
         }
     }
 
-    pub fn update(&mut self, input: u16, inc: bool, reset: bool, load: bool) {
-        if reset {
-            self.count = 0;
-        } else if load {
-            self.count = input;
-        } else if inc {
-            self.increment();
-        }
+    pub fn reset(&mut self) {
+        self.count = 0;
+    }
+
+    pub fn set(&mut self, value: u16) {
+        self.count = value;
     }
 
     /* replace manual implementation with built-in implementation */
-    fn increment(&mut self) {
+    pub fn increment(&mut self) {
         let (new_count, overflowed) = self.count.overflowing_add(1);
         if overflowed {
-            self.count = 0;
+            self.reset();
         } else {
-            self.count = new_count;
+            self.set(new_count);
         }
     }
 

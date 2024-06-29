@@ -24,17 +24,17 @@ fn main() {
     let start = Instant::now();
     while Instant::now() - start < duration {
 
-        pc.update(1, true, false, false);
+        pc.increment();
         atomic::CLOCK_ITERATIONS.fetch_add(1, Ordering::SeqCst);
-        
+    
     }
-
-    pc.echo();
 
     utils::msg(
         "Number of clock iterations in one second:", 
         atomic::CLOCK_ITERATIONS.load(Ordering::SeqCst));
-
+    
+    pc.echo();
+    
     timer.stop(&"Run time");
 
 }
