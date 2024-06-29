@@ -33,9 +33,7 @@ impl CPU {
     pub fn startup(&mut self) {
         let cd = std::time::Duration::from_micros(self.cool_down);
 
-
         loop {
-
             let start_time = std::time::Instant::now();
             let cycles = 512;
 
@@ -50,7 +48,7 @@ impl CPU {
 
                     utils::msg(&format!("R{:01X}", i),
                         format!("{:8b}", self.register[i]));
-                        
+
                 }
                 
                 self.show_frequency();
