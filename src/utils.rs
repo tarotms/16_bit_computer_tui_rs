@@ -1,21 +1,3 @@
-use std::time::Instant;
-
-pub struct Timer {
-    inst: Instant,
-}
-
-impl Timer {
-    pub fn new() -> Timer {
-        Timer {
-            inst: std::time::Instant::now(),
-        }
-    }
-
-    pub fn stop(&mut self, head: &str) {
-        let duration = self.inst.elapsed();
-        println!("{}", format(head, &format!("{:?}", duration)));
-    }
-}
 
 pub fn separator() {
     println!("");
@@ -31,7 +13,7 @@ pub fn welcome() {
 }
 
 pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {
-    format!("{:width$} -> {}\n", head, body, width = 20)
+    format!("{:width$} -> {}\n", head, body, width = 60)
 }
 
 pub fn msg<T: std::fmt::Display>(head: &str, body: T) {

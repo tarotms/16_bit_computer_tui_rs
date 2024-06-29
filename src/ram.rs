@@ -1,11 +1,11 @@
 
-pub struct Ram {
+pub struct RAM {
     memory: [u16; 65536],
 }
 
-impl Ram {
-    pub fn new() -> Ram {
-        Ram {
+impl RAM {
+    pub fn new() -> RAM {
+        RAM {
             memory: [0; 65536],
         }
     }
