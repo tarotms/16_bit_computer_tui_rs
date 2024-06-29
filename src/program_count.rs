@@ -30,24 +30,20 @@ impl ProgramCount {
     fn increment(&mut self) {
         
         let mut carry = true;
-        let mut next_carry = false;
-//为什么一次加了2
+
         for i in (0..16).rev() {
             let result = chip::full_adder(
                 self.count[i], self.ones[i], carry);
 
             self.count[i] = result.0;
-            next_carry = result.1;
+            carry = result.1;
 
-            carry = next_carry;
         }
-
-        println!("{:?}", self.count);
 
     }
 
     pub fn echo(&self) {
-        utils::visualize16d(&self.count);
+        utils::visualize16b(&self.count);
     }
 
 }

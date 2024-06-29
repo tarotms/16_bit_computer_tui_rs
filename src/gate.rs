@@ -6,7 +6,11 @@
  * 
  */
 
+use std::sync::atomic::{AtomicUsize, Ordering};
+pub static NAND_CALL_COUNT: AtomicUsize = AtomicUsize::new(0);
+
 pub fn nand(a: bool, b: bool) -> bool {
+    NAND_CALL_COUNT.fetch_add(1, Ordering::SeqCst);
     !(a && b)
 }
 
