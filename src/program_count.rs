@@ -34,10 +34,10 @@ impl ProgramCount {
         for i in (0..16).rev() {
             let result = chip::full_adder(
                 self.count[i], self.ones[i], carry);
-
+            
             self.count[i] = result.0;
             carry = result.1;
-
+            
         }
 
     }

@@ -17,10 +17,29 @@ impl Timer {
     }
 }
 
-pub fn format(head: &str, body: &str) -> String {
+pub fn separator() {
+    println!("");
+}
+
+pub fn welcome() {
+    println!(" _ _  _   _");
+    println!(r"(/\///_/// //");
+    println!("RUST_NAND2TETRIS");
+    println!("Created by Onigirazu Nori");
+    println!("www.youtube.com/@OnigirazuNori");
+    separator();
+}
+
+pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {
     format!("{:width$} -> {}\n", head, body, width = 20)
 }
 
+pub fn msg<T: std::fmt::Display>(head: &str, body: T) {
+    let text: String = format(head, body);
+    print!("{}", text);
+}
+
+/*
 pub fn test_gate(func: fn(bool, bool) -> bool) {
     println!("┌───┬───┬───┐");
     println!("│ A │ B │ O │");
@@ -80,14 +99,7 @@ pub fn test_full_adder(func: fn(bool, bool, bool) -> (bool, bool)) {
     }
     println!("└───┴───┴───┴───┴───┘");
 }
-
-pub fn u16_to_bool_array(value: u16) -> [bool; 16] {
-    let mut array = [false; 16];
-    for i in 0..16 {
-        array[15 - i] = (value & (1 << i)) != 0;
-    }
-    array
-}
+*/
 
 pub fn visualize16b(array: &[bool; 16]) {
     for bit in array.iter() {
@@ -96,7 +108,7 @@ pub fn visualize16b(array: &[bool; 16]) {
     println!();
 }
 
-pub fn visualize16d(array: &[bool; 16]) {
+pub fn _visualize16d(array: &[bool; 16]) {
     let mut value: u16 = 0;
     for (index, &bit) in array.iter().enumerate() {
         if bit {
@@ -106,7 +118,7 @@ pub fn visualize16d(array: &[bool; 16]) {
     println!("{}", value);
 }
 
-pub fn visualize16h(array: &[bool; 16]) {
+pub fn _visualize16h(array: &[bool; 16]) {
     let mut value: u16 = 0;
     for (index, &bit) in array.iter().enumerate() {
         if bit {

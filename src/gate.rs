@@ -6,11 +6,11 @@
  * 
  */
 
-use std::sync::atomic::{AtomicUsize, Ordering};
-pub static NAND_CALL_COUNT: AtomicUsize = AtomicUsize::new(0);
+use std::sync::atomic::Ordering;
+use crate::atomic;
 
 pub fn nand(a: bool, b: bool) -> bool {
-    NAND_CALL_COUNT.fetch_add(1, Ordering::SeqCst);
+    atomic::NAND_CALL_COUNTS.fetch_add(1, Ordering::SeqCst);
     !(a && b)
 }
 
@@ -39,69 +39,4 @@ pub fn xor(
     b: bool
 ) -> bool {
     or(and(a, not(b)), and(not(a), b))
-}
-
-pub fn nor(
-    a: bool,
-    b: bool
-) -> bool {
-    not(or(a, b))
-}
-
-pub fn mux(
-    a: bool,
-    b: bool,
-    sel: bool
-) -> bool {
-    if sel {
-        b
-    } else {
-        a
-    }
-}
-
-pub fn not16(
-    a: &[bool;16]
-) -> [bool;16] {
-    let mut out: [bool; 16] = [false; 16];
-    for index in 0..16 {
-        out[index] = not(a[index]);
-    }
-    out
-}
-
-pub fn and16(
-    a: &[bool;16],
-    b: &[bool;16]
-) -> [bool;16] {
-    let mut out: [bool; 16] = [false; 16];
-    for index in 0..16 {
-        out[index] = and(a[index], b[index]);
-    }
-    out
-}
-
-pub fn or16(
-    a: &[bool;16],
-    b: &[bool;16]
-) -> [bool;16] {
-    let mut out: [bool; 16] = [false; 16];
-    for index in 0..16 {
-        out[index] = or(a[index], b[index]);
-    }
-    out
-}
-
-pub fn mux16(
-    a: &[bool;16],
-    b: &[bool;16],
-    sel: bool
-) -> [bool;16] {
-    let mut out: [bool; 16] = [false; 16];
-    if sel {
-        out = *b;
-    } else {
-        out = *a;
-    }
-    out
 }
