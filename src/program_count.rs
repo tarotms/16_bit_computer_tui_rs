@@ -1,7 +1,3 @@
-use crate::utils;
-use std::sync::atomic::Ordering;
-use crate::atomic;
-
 pub struct ProgramCount {
     count: u16,
 }
@@ -24,7 +20,6 @@ impl ProgramCount {
 
     /* replace manual implementation with built-in implementation */
     pub fn increment(&mut self) {
-        atomic::CLOCK_ITERATIONS.fetch_add(1, Ordering::SeqCst);
         let (new_count, overflowed) = self.count.overflowing_add(1);
         if overflowed {
             self.reset();
@@ -33,8 +28,8 @@ impl ProgramCount {
         }
     }
 
-    pub fn echo(&self) {
-        utils::visualize16(self.count);
+    pub fn print(&self) -> u16 {
+        self.count
     }
 
 }

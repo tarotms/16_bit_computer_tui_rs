@@ -12,6 +12,7 @@ pub struct CPU {
     pc: ProgramCount,
     /* 64KB memory */
     ram: RAM,
+    register: [u16; 8],
 
     frequency: u64,
     cool_down: u64,
@@ -23,13 +24,15 @@ impl CPU {
         CPU {
             pc: ProgramCount::new(),
             ram: RAM::new(),
+            register: [0; 8],
             frequency: 1,
-            cool_down: 300,
+            cool_down: 200,
         }
     }
 
     pub fn startup(&mut self) {
         let cd = std::time::Duration::from_micros(self.cool_down);
+
 
         loop {
 
@@ -40,12 +43,19 @@ impl CPU {
             for _ in 0..cycles {
                 self.pc.increment();
             
-                std::thread::sleep(cd);
-
                 print!("\x1B[2J\x1B[H");
-                self.pc.echo();
+                utils::msg("Program count", format!("0b{:016b}", self.pc.print()));
+
+                for i in 0..8 {
+
+                    utils::msg(&format!("R{:01X}", i),
+                        format!("{:8b}", self.register[i]));
+                        
+                }
+                
                 self.show_frequency();
 
+                std::thread::sleep(cd);
             }
 
             let average_cycle_time  = start_time.elapsed().as_micros() as f64 / cycles as f64;
@@ -53,6 +63,23 @@ impl CPU {
             
         }
     
+    }
+
+    //todo add more assembly
+    fn assembly(&mut self, opcode: Opcode, arg1: u16, arg2: u16, dest: usize) {
+        match opcode {
+            Opcode::ADD => {
+                let sum = self.register[arg1 as usize] + self.register[arg2 as usize];
+                self.register[dest] = sum;
+            },
+            Opcode::SUB => {
+                let difference = self.register[arg1 as usize] - self.register[arg2 as usize];
+                self.register[dest] = difference;
+            },
+            Opcode::JMP => {
+                self.pc.set(arg1);
+            }
+        }
     }
 
     pub fn show_frequency(&self) {

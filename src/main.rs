@@ -7,11 +7,9 @@
 
 mod utils;
 mod program_count;
-mod atomic;
 mod ram;
 mod cpu;
 
-use std::sync::atomic::Ordering;
 
 fn main() {
 
@@ -25,9 +23,6 @@ fn main() {
     let mut cpu = cpu::CPU::new();
     cpu.startup();
 
-    utils::msg(
-        "Number of clock iterations in one second:", 
-        atomic::CLOCK_ITERATIONS.load(Ordering::SeqCst));
     }
 
 }

@@ -13,7 +13,7 @@ pub fn welcome() {
 }
 
 pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {
-    format!("{:width$} -> {}\n", head, body, width = 60)
+    format!("{:width$} -> {}\n", head, body, width = 20)
 }
 
 pub fn msg<T: std::fmt::Display>(head: &str, body: T) {
@@ -83,8 +83,3 @@ pub fn test_full_adder(func: fn(bool, bool, bool) -> (bool, bool)) {
 }
 */
 
-pub fn visualize16(value: u16) {
-    msg("Bin", format!("0b{:016b}", value));
-    //msg("Hex", format!("0x{:04X}", value));
-    
-}
