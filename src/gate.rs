@@ -6,6 +6,7 @@
  * 
  */
 
+ /* 
 use std::sync::atomic::Ordering;
 use crate::atomic;
 
@@ -40,3 +41,4 @@ pub fn xor(
 ) -> bool {
     or(and(a, not(b)), and(not(a), b))
 }
+ */
