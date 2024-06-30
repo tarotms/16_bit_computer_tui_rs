@@ -11,8 +11,9 @@ mod cpu;
 mod gate;
 
 fn main() {
+    
+    print!("{}", utils::welcome());
 
-    utils::welcome();
     utils::msg("System", "Press s to begin");
 
     let mut input = String::new();
