@@ -2,7 +2,6 @@
  *  _ _  _   _ _
  * (/\///_/// //
  * Created by Onigirazu Nori
- * www.youtube.com/@OnigirazuNori
  * 
  */
 

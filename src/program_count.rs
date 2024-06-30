@@ -28,7 +28,7 @@ impl ProgramCount {
         }
     }
 
-    pub fn print(&self) -> u16 {
+    pub fn get(&self) -> u16 {
         self.count
     }
 
