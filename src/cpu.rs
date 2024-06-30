@@ -3,9 +3,15 @@ use crate::ram::RAM;
 use crate::utils;
 
 enum Opcode {
+    LDR,
+    STR,
+    JMP,
+    NOP,
     ADD,
     SUB,
-    JMP,
+    AND,
+    OR,
+    NOT,
 }
 pub struct CPU {
 
@@ -61,7 +67,7 @@ impl CPU {
 
                 for i in 0..8 {
                     buffer_behind.push_str(&utils::format(
-                    &format!("R{:01X}", i),format!("{:8b}", self.register[i])));
+                    &format!("R 0x{:01X}", i),format!("{:8b}", self.register[i])));
 
                 }
 
@@ -85,25 +91,23 @@ impl CPU {
     
     }
 
-    //todo add more assembly
-    fn assembly(&mut self, opcode: Opcode, arg1: u16, arg2: u16, dest: usize) {
-        match opcode {
-            Opcode::ADD => {
-                let sum = self.register[arg1 as usize] + self.register[arg2 as usize];
-                self.register[dest] = sum;
-            },
-            Opcode::SUB => {
-                let difference = self.register[arg1 as usize] - self.register[arg2 as usize];
-                self.register[dest] = difference;
-            },
-            Opcode::JMP => {
-                self.pc.set(arg1);
-            }
-        }
-    }
 
     pub fn frequency(&self) -> u64 {
         self.frequency
+    }
+
+    fn assembly(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) {
+        match opcode {
+            Opcode::LDR => self.register[dest as usize] = self.ram.read(arg1),
+            Opcode::STR => self.ram.write(arg1, self.register[dest as usize]),
+            Opcode::JMP => self.pc.set(arg1),
+            Opcode::NOP => {},
+            Opcode::ADD => self.register[dest as usize] = self.register[arg1 as usize] + self.register[arg2 as usize],
+            Opcode::SUB => self.register[dest as usize] = self.register[arg1 as usize] - self.register[arg2 as usize],
+            Opcode::AND => self.register[dest as usize] = self.register[arg1 as usize] & self.register[arg2 as usize],
+            Opcode::OR  => self.register[dest as usize] = self.register[arg1 as usize] | self.register[arg2 as usize],
+            Opcode::NOT => self.register[dest as usize] = !self.register[arg1 as usize],
+        }
     }
 
 }

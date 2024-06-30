@@ -9,7 +9,7 @@ mod utils;
 mod program_count;
 mod ram;
 mod cpu;
-
+mod gate;
 
 fn main() {
 

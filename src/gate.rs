@@ -6,16 +6,14 @@
  * 
  */
 
- /* 
-use std::sync::atomic::Ordering;
-use crate::atomic;
-
+/* 
 pub fn nand(a: bool, b: bool) -> bool {
     !(a && b)
 }
 
-pub fn not(
+pub fn notx(
     a: bool,
+    _b: bool
 ) -> bool {
     nand(a, a)
 }
@@ -24,7 +22,7 @@ pub fn or(
     a: bool,
     b: bool
 ) -> bool {
-    nand(not(a), not(b))
+    nand(notx(a, a), notx(b, b))
 }
 
 pub fn and(
@@ -38,6 +36,6 @@ pub fn xor(
     a: bool,
     b: bool
 ) -> bool {
-    or(and(a, not(b)), and(not(a), b))
+    or(and(a, notx(b, b)), and(notx(a, a), b))
 }
  */
