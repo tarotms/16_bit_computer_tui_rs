@@ -73,13 +73,14 @@ impl CPU {
                 if *opcode == Opcode::END {break 'outer;}
                 self.exec(*opcode, *dest, *arg1, *arg2);
 
+                buffer_behind.push_str("\x1B[2J\x1B[");
 
                 buffer_behind.push_str(&utils::format(
-                    "\x1B[2J\x1B[HProgram count Dec", format!("0b{:05}", pc_count))
+                    "HProgram count Dec", format!("0b{:05}", pc_count))
                 );
 
                 buffer_behind.push_str(&utils::format(
-                    "Program count Bin", format!("0b{:016b})", pc_count))
+                    "Program count Bin", format!("0b{:016b}", pc_count))
                 );
 
                 for i in 0..8 {
