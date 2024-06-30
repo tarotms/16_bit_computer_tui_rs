@@ -49,7 +49,7 @@ impl CPU {
             register: [0; 8],
             
             frequency: 1,
-            cool_down: 5,
+            cool_down: 0,
 
             commands: Vec::new(),
         };
@@ -128,8 +128,6 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
 
             cpu.exec(opcode, dest, arg1, arg2);
 
-            //buffer_behind.push_str("\x1B[2J\x1B[H");
-            
             buffer_behind.push_str(&welcome);
 
             buffer_behind.push_str(&utils::format(
@@ -174,6 +172,35 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
         let average_cycle_time  = start_time.elapsed().as_micros() as f64 / cycles as f64;
         cpu.frequency = (1_000_000.0 / average_cycle_time) as u64;
         
+    }
+
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(100)].as_ref())
+                .split(size);
+
+            let mut text: Vec<Spans> = buffer_screen
+                .lines()
+                .map(|line| Spans::from(Span::raw(line)))
+                .collect();
+
+            text.push(Spans::from(Span::raw("")));
+            text.push(Spans::from(Span::raw("Program returned 'Ok(())'")));
+            text.push(Spans::from(Span::raw("Press 'q' to exit.")));
+            
+            let paragraph = Paragraph::new(text)
+                .block(Block::default().title(" CPU ").borders(Borders::ALL));
+            f.render_widget(paragraph, chunks[0]);
+        })?;
+
+        if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
+            if key.code == crossterm::event::KeyCode::Char('q') {
+                break;
+            }
+        }
     }
 
     Ok(())

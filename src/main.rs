@@ -11,11 +11,10 @@
 };
 use std::io;
 use tui::{
-    backend::{Backend, CrosstermBackend},
+    backend::CrosstermBackend,
     widgets::{Block, Borders, Paragraph},
     layout::{Constraint, Direction, Layout},
-    text::{Span, Spans},
-    Frame, Terminal,
+    Terminal,
 };
 
 
@@ -43,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .constraints([Constraint::Percentage(100)].as_ref())
                 .split(size);
             let welcome_paragraph = Paragraph::new(welcome.as_ref())
-                .block(Block::default().title(" Welcome ").borders(Borders::ALL));
+                .block(Block::default().title(" CPU ").borders(Borders::ALL));
 
             f.render_widget(welcome_paragraph, chunks[0]);
 
@@ -59,11 +58,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     disable_raw_mode()?;
+
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen,
         DisableMouseCapture
     )?;
+    
     terminal.show_cursor()?;
 
     Ok(())
