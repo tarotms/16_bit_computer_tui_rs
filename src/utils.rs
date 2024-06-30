@@ -4,19 +4,14 @@ pub fn welcome() -> String {
     welcome_message += r"(/\///_/// //";
     welcome_message += "\nRUST_NAND2TETRIS\n";
     welcome_message += "Created by Onigirazu Nori\n";
-    welcome_message += "www.youtube.com/@OnigirazuNori\n";
-
+    welcome_message += "www.youtube.com/@OnigirazuNori\n\n";
+    
     welcome_message
 }
-
 
 pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {
     format!("{:width$} -> {}\n", head, body, width = 20)
 }
 
-pub fn msg<T: std::fmt::Display>(head: &str, body: T) {
-    let text: String = format(head, body);
-    print!("{}", text);
-}
 
 

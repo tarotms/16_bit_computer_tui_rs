@@ -1,7 +1,14 @@
 use crate::program_count::ProgramCount;
 use crate::ram::RAM;
 use crate::utils;
-use std::io::Write;
+
+use tui::{
+    backend::Backend,
+    layout::{Constraint, Direction, Layout},
+    text::{Span, Spans},
+    widgets::{Block, Borders, Paragraph},
+    Frame, Terminal,
+};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum Opcode {
@@ -42,7 +49,7 @@ impl CPU {
             register: [0; 8],
             
             frequency: 1,
-            cool_down: 25,
+            cool_down: 5,
 
             commands: Vec::new(),
         };
@@ -50,82 +57,6 @@ impl CPU {
         cpu.load_commands();
 
         cpu
-    }
-
-    pub fn startup(&mut self) {
-        let buffer_size = 1024;
-        let mut buffer_screen = String::with_capacity(buffer_size);
-        let mut buffer_behind = String::with_capacity(buffer_size);
-    
-        let cd = std::time::Duration::from_millis(self.cool_down);
-
-        let stdout = std::io::stdout();
-        let mut handle = stdout.lock();
-        
-        let welcome = utils::welcome();
-
-        'outer: loop {
-
-            let start_time = std::time::Instant::now();
-            let cycles = 16;
-
-            /* kernel clock */
-            for _ in 0..cycles {
-
-                let pc_count = self.pc.get();
-
-                let (opcode, dest, arg1, arg2) = self.commands.get(pc_count as usize).cloned().unwrap();
-
-                if opcode == Opcode::END {break 'outer;}
-
-                self.exec(opcode, dest, arg1, arg2);
-
-                buffer_behind.push_str("\x1B[2J\x1B[H");
-                
-                buffer_behind.push_str(&welcome);
-
-                buffer_behind.push_str(&utils::format(
-                    "Program count Dec", format!("0b{:05}", pc_count))
-                );
-
-                buffer_behind.push_str(&utils::format(
-                    "Program count Bin", format!("0b{:016b}", pc_count))
-                );
-
-                let command_fotmat = format!(
-                    "\nCurrent command: {:?} {} {:05} {:05}\n\n",
-                    opcode, dest, arg1, arg2
-                );
-
-                buffer_behind.push_str(&command_fotmat);
-
-                for i in 0..8 {
-                    buffer_behind.push_str(&utils::format(
-                    &format!("R 0x{:1X}", i),format!("0x{:04X} -> {:05}", self.register[i], self.register[i])));
-
-                }
-
-                buffer_behind.push_str(&utils::format(
-                    "Frequency", format!("{} Hz",  self.frequency())));
-
-
-                std::mem::swap(&mut buffer_screen, &mut buffer_behind);
-
-                handle.write_all(buffer_screen.as_bytes()).unwrap();
-
-                buffer_behind.clear();
-
-                std::thread::sleep(cd);
-
-                self.pc.increment();
-
-            }
-
-            let average_cycle_time  = start_time.elapsed().as_micros() as f64 / cycles as f64;
-            self.frequency = (1_000_000.0 / average_cycle_time) as u64;
-            
-        }
-    
     }
 
     pub fn frequency(&self) -> u64 {
@@ -170,4 +101,99 @@ impl CPU {
 
     }
 
+}
+
+pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<(), Box<dyn std::error::Error>> {
+    let buffer_size = 1024;
+    let mut buffer_screen = String::with_capacity(buffer_size);
+    let mut buffer_behind = String::with_capacity(buffer_size);
+
+    let cd = std::time::Duration::from_millis(cpu.cool_down);
+
+    let welcome = utils::welcome();
+
+    'outer: loop {
+
+        let start_time = std::time::Instant::now();
+        let cycles = 16;
+
+        /* kernel clock */
+        for _ in 0..cycles {
+
+            let pc_count = cpu.pc.get();
+
+            let (opcode, dest, arg1, arg2) = cpu.commands.get(pc_count as usize).cloned().unwrap();
+
+            if opcode == Opcode::END {break 'outer;}
+
+            cpu.exec(opcode, dest, arg1, arg2);
+
+            //buffer_behind.push_str("\x1B[2J\x1B[H");
+            
+            buffer_behind.push_str(&welcome);
+
+            buffer_behind.push_str(&utils::format(
+                "Program count Dec", format!("0b{:05}", pc_count))
+            );
+
+            buffer_behind.push_str(&utils::format(
+                "Program count Bin", format!("0b{:016b}", pc_count))
+            );
+
+            let command_fotmat = format!(
+                "\nCurrent command: {:?} {} {:05} {:05}\n\n",
+                opcode, dest, arg1, arg2
+            );
+
+            buffer_behind.push_str(&command_fotmat);
+
+            for i in 0..8 {
+                buffer_behind.push_str(&utils::format(
+                &format!("R 0x{:1X}", i),format!("0x{:04X} -> {:05}", cpu.register[i], cpu.register[i])));
+
+            }
+
+            buffer_behind.push_str(&utils::format(
+                "Frequency", format!("{} Hz",  cpu.frequency())));
+
+
+            std::mem::swap(&mut buffer_screen, &mut buffer_behind);
+
+            terminal.draw(|f| {
+                ui(f, &buffer_screen);
+            })?;
+
+            buffer_behind.clear();
+
+            std::thread::sleep(cd);
+
+            cpu.pc.increment();
+
+        }
+
+        let average_cycle_time  = start_time.elapsed().as_micros() as f64 / cycles as f64;
+        cpu.frequency = (1_000_000.0 / average_cycle_time) as u64;
+        
+    }
+
+    Ok(())
+}
+
+fn ui<B: Backend>(f: &mut Frame<B>, content: &str) {
+    let size = f.size();
+
+    let block = Block::default()
+        .title("TUI Example")
+        .borders(Borders::ALL);
+    f.render_widget(block, size);
+
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(100)].as_ref())
+        .split(size);
+
+    let text: Vec<Spans> = content.lines().map(|line| Spans::from(Span::raw(line))).collect();
+    let paragraph = Paragraph::new(text)
+        .block(Block::default().title(" CPU ").borders(Borders::ALL));
+    f.render_widget(paragraph, chunks[0]);
 }

@@ -4,26 +4,68 @@
  * Created by Onigirazu Nori
  */
 
+ use crossterm::{
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
+use std::io;
+use tui::{
+    backend::{Backend, CrosstermBackend},
+    widgets::{Block, Borders, Paragraph},
+    layout::{Constraint, Direction, Layout},
+    text::{Span, Spans},
+    Frame, Terminal,
+};
+
+
 mod utils;
 mod program_count;
 mod ram;
 mod cpu;
 mod gate;
 
-fn main() {
-    print!("{}", utils::welcome());
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
-    utils::msg("System", "Press s to begin");
+    let mut welcome = utils::welcome();
+    welcome += "Press 's' to startup\n";
 
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read line");
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(100)].as_ref())
+                .split(size);
+            let welcome_paragraph = Paragraph::new(welcome.as_ref())
+                .block(Block::default().title(" Welcome ").borders(Borders::ALL));
 
-    if input.trim().eq_ignore_ascii_case("s") {
-        let mut cpu = cpu::CPU::new();
-        cpu.startup();
+            f.render_widget(welcome_paragraph, chunks[0]);
+
+        })?;
+
+        if let Event::Key(key) = event::read()? {
+            if key.code == KeyCode::Char('s') {
+                let mut cpu = cpu::CPU::new();
+                cpu::startup(&mut cpu, &mut terminal)?;
+                break;
+            }
+        }
     }
 
-    utils::msg("System", "exit");
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )?;
+    terminal.show_cursor()?;
 
+    Ok(())
 }
 
