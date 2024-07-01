@@ -23,6 +23,7 @@ pub enum Opcode {
     LTE,
     JEQ,
     JNE,
+    MOV,
     END,
 }
 pub struct CPU {
@@ -33,7 +34,6 @@ pub struct CPU {
     register: [u16; 8],
 
     frequency: u64,
-    cool_down: u64,
 
     commands: Vec<(Opcode, u16, u16, u16)>,
 
@@ -41,30 +41,36 @@ pub struct CPU {
 
 impl CPU {
     pub fn new() -> CPU {
-        let mut cpu = CPU {
+        let cpu = CPU {
             pc: ProgramCount::new(),
             ram: RAM::new(),
             register: [0; 8],
             
             frequency: 1,
-            cool_down: 2,
 
             commands: Vec::new(),
         };
 
         cpu
     }
+    
+    pub fn reset(&mut self) {
+        self.pc.reset();
+        self.ram.clear();
+        self.register = [0; 8];
+        self.commands.clear();
+    }
 
     pub fn frequency(&self) -> u64 {
         self.frequency
     }
 
-    fn exec(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) {
+    fn exec(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) -> bool {
         match opcode {
             Opcode::LDI => self.register[dest as usize] = arg1,
             Opcode::LDR => self.register[dest as usize] = self.ram.read(arg1),
             Opcode::STR => self.ram.write(arg1, self.register[dest as usize]),
-            Opcode::JMP => self.pc.set(arg1),
+            Opcode::JMP => { self.pc.set(arg1); return false; },
             Opcode::NOP => {},
             Opcode::ADD => self.register[dest as usize] = self.register[arg1 as usize] + self.register[arg2 as usize],
             Opcode::SUB => self.register[dest as usize] = self.register[arg1 as usize] - self.register[arg2 as usize],
@@ -72,10 +78,12 @@ impl CPU {
             Opcode::BOR  => self.register[dest as usize] = self.register[arg1 as usize] | self.register[arg2 as usize],
             Opcode::NOT => self.register[dest as usize] = !self.register[arg1 as usize],
             Opcode::LTE => self.register[dest as usize] = (self.register[arg1 as usize] < self.register[arg2 as usize]) as u16,
-            Opcode::JEQ => if self.register[dest as usize] == 0 { self.pc.set(arg1); },
-            Opcode::JNE => if self.register[dest as usize] != 0 { self.pc.set(arg1); },
+            Opcode::JEQ => if self.register[dest as usize] == 0 { self.pc.set(arg1); return false;},
+            Opcode::JNE => if self.register[dest as usize] != 0 { self.pc.set(arg1); return false;},
+            Opcode::MOV => self.register[dest as usize] = self.register[arg1 as usize],
             Opcode::END => {},
         }
+        true
     }
 
     fn load_command(&mut self, command: (Opcode, u16, u16, u16)) {
@@ -98,8 +106,6 @@ pub fn run<B: Backend>(
     let buffer_size = 1024;
     let mut buffer_screen = String::with_capacity(buffer_size);
 
-    let cd = std::time::Duration::from_millis(cpu.cool_down);
-
     let welcome = utils::welcome();
 
     'outer: loop {
@@ -116,7 +122,7 @@ pub fn run<B: Backend>(
 
             if opcode == Opcode::END {break 'outer;}
 
-            cpu.exec(opcode, dest, arg1, arg2);
+            let should_increment = cpu.exec(opcode, dest, arg1, arg2);
 
             buffer_screen.push_str(&welcome);
 
@@ -140,18 +146,19 @@ pub fn run<B: Backend>(
                 &format!("R 0x{:1X}", i),format!("0x{:04X} -> {:05}", cpu.register[i], cpu.register[i])));
 
             }
-
+            
             buffer_screen.push_str(&utils::format(
                 "Frequency", format!("{} Hz",  cpu.frequency())));
 
             frame_buffer.clear();
             frame_buffer.push_msg(buffer_screen.clone());
-            
+            terminal.draw(|f| ui::ui(f, frame_buffer))?;
+
             buffer_screen.clear();
 
-            terminal.draw(|f| ui::ui(f, frame_buffer))?;
-            std::thread::sleep(cd);
-            cpu.pc.increment();
+            if should_increment {
+                cpu.pc.increment();
+            }
 
         }
 

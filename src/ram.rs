@@ -6,8 +6,12 @@ pub struct RAM {
 impl RAM {
     pub fn new() -> RAM {
         RAM {
-            memory: [0; 65536],
+            memory: [0; 64 * 1024],
         }
+    }
+
+    pub fn clear(&mut self) {
+        self.memory = [0; 64 * 1024];
     }
 
     pub fn read(&self, address: u16) -> u16 {

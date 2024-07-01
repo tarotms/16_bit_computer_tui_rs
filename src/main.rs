@@ -4,6 +4,7 @@
  * Created by Onigirazu Nori
  */
 
+use tui::backend::Backend;
 use crate::frame_buffer::FrameBuffer;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -26,6 +27,23 @@ mod ui;
 mod frame_buffer;
 mod assembly;
 
+fn exec_program<B: Backend>(
+    cpu: &mut cpu::CPU,
+    program: &[(cpu::Opcode, u16, u16, u16)],
+    frame_buffer: &mut FrameBuffer,
+    terminal: &mut Terminal<B>,
+    main_menu: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    cpu.reset();
+    cpu.load_assembly(program);
+    cpu::run(cpu, frame_buffer, terminal)?;
+
+    /* Clear and restore main menu */
+    frame_buffer.clear();
+    frame_buffer.push_msg(main_menu.to_string());
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     /* Initialization terminal */
@@ -35,13 +53,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let mut welcome = utils::welcome();
-    welcome += "Press 1 -> The sum of numbers from 0 to 100\n";
-
-    welcome += "Press Q -> Quit\n";
+    let main_menu = utils::main_menu();
 
     let mut frame_buffer = FrameBuffer::default();
-    frame_buffer.push_msg(welcome.clone());
+    frame_buffer.push_msg(main_menu.clone());
+
+    let mut cpu = cpu::CPU::new();
 
     loop {
         terminal.draw(|f| {
@@ -49,21 +66,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         if let Event::Key(key) = event::read()? {
             if key.code == KeyCode::Char('1') {
-                let mut cpu = cpu::CPU::new();
-                
-                cpu.load_assembly(&assembly::PROGRAM_SUM_OF_0_TO_100);
-
-                cpu::run(&mut cpu, &mut frame_buffer, &mut terminal)?;
-
-                frame_buffer.clear();
-
-                /* Restore main menu */
-                frame_buffer.push_msg(welcome.clone());
-
+                exec_program(
+                    &mut cpu,
+                    &assembly::PROGRAM_SUM_OF_0_TO_100,
+                    &mut frame_buffer,
+                    &mut terminal,
+                    &main_menu,
+                )?;
+            } else if key.code == KeyCode::Char('2') {
+                exec_program(
+                    &mut cpu,
+                    &assembly::PROGRAM_FIBONACCI,
+                    &mut frame_buffer,
+                    &mut terminal,
+                    &main_menu,
+                )?;
             }else if key.code == crossterm::event::KeyCode::Char('q') {
                 break;
             }
-            
         }
     }
 
