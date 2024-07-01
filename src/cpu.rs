@@ -9,7 +9,7 @@ use tui::{
 };
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-enum Opcode {
+pub enum Opcode {
     LDI,
     LDR,
     STR,
@@ -52,8 +52,6 @@ impl CPU {
             commands: Vec::new(),
         };
 
-        cpu.load_commands();
-
         cpu
     }
 
@@ -83,25 +81,16 @@ impl CPU {
     fn load_command(&mut self, command: (Opcode, u16, u16, u16)) {
         self.commands.push(command);
     }
-
-    fn load_commands(&mut self) {
-        self.load_command((Opcode::LDI, 0, 0, 0));//寄存器0 = 0 保存结果
-        self.load_command((Opcode::LDI, 1, 1, 0));//寄存器1 = 1 当前循环次数
-        self.load_command((Opcode::LDI, 2, 1, 0));//寄存器2 = 1 单位1
-        self.load_command((Opcode::LDI, 3, 100, 0));//寄存器3 = 101
-
-        self.load_command((Opcode::ADD, 0, 0, 1));//寄存器0 += 寄存器1
-        self.load_command((Opcode::LTE, 4, 1, 3));//寄存器4 = 寄存器2 < 寄存器3
-        self.load_command((Opcode::ADD, 1, 1, 2));//寄存器1 += 寄存器2
-        self.load_command((Opcode::JNE, 4, 3, 0));//如果寄存器4不等于0 则跳转至第4行命令
-
-        self.load_command((Opcode::END, 0, 0, 0));
-
+    
+    pub fn load_assembly(&mut self, commands: &[(Opcode, u16, u16, u16)]) {
+        for command in commands.iter() {
+            self.load_command(*command);
+        }
     }
 
 }
 
-pub fn startup<B: Backend>(
+pub fn run<B: Backend>(
     cpu: &mut CPU, 
     frame_buffer: &mut FrameBuffer,
     terminal: &mut Terminal<B>

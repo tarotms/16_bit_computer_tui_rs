@@ -24,6 +24,7 @@ mod cpu;
 mod gate;
 mod ui;
 mod frame_buffer;
+mod assembly;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -34,7 +35,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let welcome = utils::welcome() + "Press 's' to startup\n";
+    let mut welcome = utils::welcome();
+    welcome += "Press 1 -> The sum of numbers from 0 to 100\n";
+
+    welcome += "Press Q -> Quit\n";
 
     let mut frame_buffer = FrameBuffer::default();
     frame_buffer.push_msg(welcome);
@@ -44,11 +48,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ui::ui(f, &frame_buffer)})?;
 
         if let Event::Key(key) = event::read()? {
-            if key.code == KeyCode::Char('s') {
+            if key.code == KeyCode::Char('1') {
                 let mut cpu = cpu::CPU::new();
-                cpu::startup(&mut cpu, &mut frame_buffer, &mut terminal)?;
+                
+                cpu.load_assembly(&assembly::COMMANDS);//todo rename
+
+                cpu::run(&mut cpu, &mut frame_buffer, &mut terminal)?;
+
+            }else if key.code == crossterm::event::KeyCode::Char('q') {
                 break;
             }
+            
         }
     }
 
