@@ -1,13 +1,11 @@
 use crate::program_count::ProgramCount;
 use crate::ram::RAM;
 use crate::utils;
+use crate::ui;
+use crate::frame_buffer::FrameBuffer;
 
 use tui::{
-    backend::Backend,
-    layout::{Constraint, Direction, Layout},
-    text::{Span, Spans},
-    widgets::{Block, Borders, Paragraph},
-    Frame, Terminal,
+    backend::Backend,Terminal,
 };
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -49,7 +47,7 @@ impl CPU {
             register: [0; 8],
             
             frequency: 1,
-            cool_down: 0,
+            cool_down: 5,
 
             commands: Vec::new(),
         };
@@ -103,10 +101,13 @@ impl CPU {
 
 }
 
-pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn startup<B: Backend>(
+    cpu: &mut CPU, 
+    frame_buffer: &mut FrameBuffer,
+    terminal: &mut Terminal<B>
+) -> Result<(), Box<dyn std::error::Error>> {
     let buffer_size = 1024;
     let mut buffer_screen = String::with_capacity(buffer_size);
-    let mut buffer_behind = String::with_capacity(buffer_size);
 
     let cd = std::time::Duration::from_millis(cpu.cool_down);
 
@@ -128,13 +129,13 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
 
             cpu.exec(opcode, dest, arg1, arg2);
 
-            buffer_behind.push_str(&welcome);
+            buffer_screen.push_str(&welcome);
 
-            buffer_behind.push_str(&utils::format(
+            buffer_screen.push_str(&utils::format(
                 "Program count Dec", format!("0b{:05}", pc_count))
             );
 
-            buffer_behind.push_str(&utils::format(
+            buffer_screen.push_str(&utils::format(
                 "Program count Bin", format!("0b{:016b}", pc_count))
             );
 
@@ -143,28 +144,24 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
                 opcode, dest, arg1, arg2
             );
 
-            buffer_behind.push_str(&command_fotmat);
+            buffer_screen.push_str(&command_fotmat);
 
             for i in 0..8 {
-                buffer_behind.push_str(&utils::format(
+                buffer_screen.push_str(&utils::format(
                 &format!("R 0x{:1X}", i),format!("0x{:04X} -> {:05}", cpu.register[i], cpu.register[i])));
 
             }
 
-            buffer_behind.push_str(&utils::format(
+            buffer_screen.push_str(&utils::format(
                 "Frequency", format!("{} Hz",  cpu.frequency())));
 
+            frame_buffer.clear();
+            frame_buffer.push_msg(buffer_screen.clone());
+            
+            buffer_screen.clear();
 
-            std::mem::swap(&mut buffer_screen, &mut buffer_behind);
-
-            terminal.draw(|f| {
-                ui(f, &buffer_screen);
-            })?;
-
-            buffer_behind.clear();
-
+            terminal.draw(|f| ui::ui(f, frame_buffer))?;
             std::thread::sleep(cd);
-
             cpu.pc.increment();
 
         }
@@ -175,27 +172,8 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
     }
 
     loop {
-        terminal.draw(|f| {
-            let size = f.size();
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints([Constraint::Percentage(100)].as_ref())
-                .split(size);
-
-            let mut text: Vec<Spans> = buffer_screen
-                .lines()
-                .map(|line| Spans::from(Span::raw(line)))
-                .collect();
-
-            text.push(Spans::from(Span::raw("")));
-            text.push(Spans::from(Span::raw("Program returned 'Ok(())'")));
-            text.push(Spans::from(Span::raw("Press 'q' to exit.")));
-            
-            let paragraph = Paragraph::new(text)
-                .block(Block::default().title(" CPU ").borders(Borders::ALL));
-            f.render_widget(paragraph, chunks[0]);
-        })?;
-
+        terminal.draw(|f| ui::ui(f, &frame_buffer))?;
+    
         if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
             if key.code == crossterm::event::KeyCode::Char('q') {
                 break;
@@ -206,21 +184,3 @@ pub fn startup<B: Backend>(cpu: &mut CPU, terminal: &mut Terminal<B>) -> Result<
     Ok(())
 }
 
-fn ui<B: Backend>(f: &mut Frame<B>, content: &str) {
-    let size = f.size();
-
-    let block = Block::default()
-        .title("TUI Example")
-        .borders(Borders::ALL);
-    f.render_widget(block, size);
-
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(100)].as_ref())
-        .split(size);
-
-    let text: Vec<Spans> = content.lines().map(|line| Spans::from(Span::raw(line))).collect();
-    let paragraph = Paragraph::new(text)
-        .block(Block::default().title(" CPU ").borders(Borders::ALL));
-    f.render_widget(paragraph, chunks[0]);
-}
