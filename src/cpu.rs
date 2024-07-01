@@ -47,7 +47,7 @@ impl CPU {
             register: [0; 8],
             
             frequency: 1,
-            cool_down: 5,
+            cool_down: 2,
 
             commands: Vec::new(),
         };
@@ -159,6 +159,11 @@ pub fn run<B: Backend>(
         cpu.frequency = (1_000_000.0 / average_cycle_time) as u64;
         
     }
+
+    frame_buffer.push_msg(String::from("Program returned 'Ok(())'"));
+    frame_buffer.push_msg(String::from("Press Q -> Back to main menu"));
+
+    terminal.draw(|f| ui::ui(f, frame_buffer))?;
 
     loop {
         terminal.draw(|f| ui::ui(f, &frame_buffer))?;

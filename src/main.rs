@@ -41,7 +41,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     welcome += "Press Q -> Quit\n";
 
     let mut frame_buffer = FrameBuffer::default();
-    frame_buffer.push_msg(welcome);
+    frame_buffer.push_msg(welcome.clone());
 
     loop {
         terminal.draw(|f| {
@@ -51,9 +51,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if key.code == KeyCode::Char('1') {
                 let mut cpu = cpu::CPU::new();
                 
-                cpu.load_assembly(&assembly::COMMANDS);//todo rename
+                cpu.load_assembly(&assembly::PROGRAM_SUM_OF_0_TO_100);
 
                 cpu::run(&mut cpu, &mut frame_buffer, &mut terminal)?;
+
+                frame_buffer.clear();
+
+                /* Restore main menu */
+                frame_buffer.push_msg(welcome.clone());
 
             }else if key.code == crossterm::event::KeyCode::Char('q') {
                 break;

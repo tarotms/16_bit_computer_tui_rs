@@ -1,6 +1,6 @@
 use crate::cpu::Opcode;
 
-pub static COMMANDS: &[(Opcode, u16, u16, u16)] = &[
+pub static PROGRAM_SUM_OF_0_TO_100: &[(Opcode, u16, u16, u16)] = &[
     (Opcode::LDI, 0, 0, 0),   // R0 = 0
     (Opcode::LDI, 1, 1, 0),   // R1 = 1
     (Opcode::LDI, 2, 1, 0),   // R2 = 1 单位1
