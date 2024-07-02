@@ -5,8 +5,11 @@
  * 
  */
 
-/* 
+use crate::utils;
+use std::sync::atomic::Ordering;
+
 pub fn nand(a: bool, b: bool) -> bool {
+    utils::NAND_CALL_COUNT.fetch_add(1, Ordering::Relaxed);
     !(a && b)
 }
 
@@ -37,4 +40,3 @@ pub fn xor(
 ) -> bool {
     or(and(a, notx(b, b)), and(notx(a, a), b))
 }
- */

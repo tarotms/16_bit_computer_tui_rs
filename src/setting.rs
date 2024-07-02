@@ -1,26 +1,43 @@
 #[derive(Debug, Clone, Copy)]
-
-pub enum Setting {
-    NandMode(bool),
-    
+pub struct Setting {
+    description: &'static str,
+    switch: bool,
+    name_on: &'static str,
+    name_off: &'static str,
 }
 
 impl Setting {
-    pub fn description(&self) -> &str {
-        match *self {
-            Setting::NandMode(_) => "Nand mode"
+    pub fn new(
+        description: &'static str,
+        switch: bool,
+        name_on: &'static str,
+        name_off: &'static str
+    ) -> Self {
+        Setting {
+            description,
+            switch,
+            name_on,
+            name_off,
         }
     }
 
-    pub fn value(&self) -> String {
-        match *self {
-            Setting::NandMode(val) => if val { "NAND".to_string() } else { "Built-in".to_string() },
+    pub fn description(&self) -> &str {
+        self.description
+    }
+
+    pub fn value(&self) -> &str {
+        if self.switch {
+            self.name_on
+        } else {
+            self.name_off
         }
     }
 
     pub fn toggle(&mut self) {
-        match *self {
-            Setting::NandMode(ref mut val) => *val = !*val,
-        }
+        self.switch = !self.switch;
+    }
+
+    pub fn get(&self) -> bool {
+        self.switch
     }
 }

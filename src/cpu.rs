@@ -55,7 +55,7 @@ impl CPU {
             commands: Vec::new(),
 
             settings: vec![
-                Setting::NandMode(false),
+                Setting::new("Nand Mode", false, "NAND", "Built-in"),
                 ],
         };
 
@@ -72,6 +72,8 @@ impl CPU {
     pub fn frequency(&self) -> u64 {
         self.frequency
     }
+
+    /* only nand gate implementation */
 
     fn exec(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) -> bool {
         match opcode {
@@ -105,6 +107,10 @@ impl CPU {
         }
     }
 
+    pub fn setting_toggle(&mut self, index: usize) {
+        self.settings[index].toggle();
+    }
+
 }
 
 pub fn run<B: Backend>(
@@ -126,6 +132,8 @@ pub fn run<B: Backend>(
         for _ in 0..cycles {
 
             let pc_count = cpu.pc.get();
+
+            frame_buffer.update_nand_called_count();
 
             let (opcode, dest, arg1, arg2) = cpu.commands.get(pc_count as usize).cloned().unwrap();
 
@@ -169,9 +177,12 @@ pub fn run<B: Backend>(
             buffer_screen.clear();
 
             if should_increment {
-                cpu.pc.increment();
+                if cpu.settings[0].get() {
+                    cpu.pc.increment_nand();
+                } else {
+                    cpu.pc.increment();
+                }
             }
-
         }
 
         let average_cycle_time  = start_time.elapsed().as_micros() as f64 / cycles as f64;

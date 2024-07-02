@@ -1,3 +1,7 @@
+use std::sync::atomic::{AtomicUsize};
+
+pub static NAND_CALL_COUNT: AtomicUsize = AtomicUsize::new(0);
+
 pub fn welcome() -> String {
     let mut welcome_message = String::new();
     welcome_message += " _ _  _   _\n";
@@ -18,7 +22,6 @@ pub fn main_menu() -> String {
     message
     
 }
-
 
 pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {
     format!("{:width$} -> {}\n", head, body, width = 20)

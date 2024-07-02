@@ -1,8 +1,11 @@
 use crate::setting::Setting;
+use crate::utils;
+use std::sync::atomic::Ordering;
 
 #[derive(Default)]
 pub struct  FrameBuffer {
     pub buffer: Vec<String>,
+    pub nand_called_count: usize,
     pub registers_led: [u16; 8],
     pub settings: Vec<Setting>,
 }
@@ -23,5 +26,9 @@ impl FrameBuffer {
 
     pub fn update_settings(&mut self, settings: Vec<Setting>) {
         self.settings = settings;
+    }
+
+    pub fn update_nand_called_count(&mut self) {
+        self.nand_called_count = utils::NAND_CALL_COUNT.load(Ordering::Relaxed);
     }
 }

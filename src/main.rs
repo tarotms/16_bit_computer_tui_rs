@@ -22,6 +22,7 @@ mod utils;
 mod program_count;
 mod ram;
 mod cpu;
+mod chip;
 mod gate;
 mod ui;
 mod frame_buffer;
@@ -61,9 +62,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut cpu = cpu::CPU::new();
     
-    /* todo 按键可以更新设置，设置需要click函数 */
     loop {
         frame_buffer.update_settings(cpu.settings.clone());
+
+        frame_buffer.update_nand_called_count();
 
         terminal.draw(|f| {
                 ui::ui(f, &frame_buffer)})?;
@@ -94,7 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     &main_menu,
                 )?;
             } else if key.code == KeyCode::Char('n') {
-                cpu.settings.0.click();///////////////////////////////
+                cpu.setting_toggle(0);
                 frame_buffer.update_settings(cpu.settings.clone());
             } else if key.code == crossterm::event::KeyCode::Char('q') {
                 break;
