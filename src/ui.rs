@@ -26,4 +26,6 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, frame_buffer: &FrameBuffer) {
     let paragraph = Paragraph::new(text)
         .block(Block::default().title(" CPU ").borders(Borders::ALL));
     f.render_widget(paragraph, chunks[0]);
+
+    
 }
