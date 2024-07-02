@@ -3,6 +3,7 @@ use crate::ram::RAM;
 use crate::utils;
 use crate::ui;
 use crate::frame_buffer::FrameBuffer;
+use crate::setting::Setting;
 
 use tui::{
     backend::Backend,Terminal,
@@ -17,6 +18,7 @@ pub enum Opcode {
     NOP,
     ADD,
     SUB,
+    MUL,
     AND,
     BOR,
     NOT,
@@ -37,6 +39,8 @@ pub struct CPU {
 
     commands: Vec<(Opcode, u16, u16, u16)>,
 
+    pub settings: Vec<Setting>
+
 }
 
 impl CPU {
@@ -49,6 +53,10 @@ impl CPU {
             frequency: 1,
 
             commands: Vec::new(),
+
+            settings: vec![
+                Setting::NandMode(false),
+                ],
         };
 
         cpu
@@ -74,8 +82,9 @@ impl CPU {
             Opcode::NOP => {},
             Opcode::ADD => self.register[dest as usize] = self.register[arg1 as usize] + self.register[arg2 as usize],
             Opcode::SUB => self.register[dest as usize] = self.register[arg1 as usize] - self.register[arg2 as usize],
+            Opcode::MUL => self.register[dest as usize] = self.register[arg1 as usize] * self.register[arg2 as usize],
             Opcode::AND => self.register[dest as usize] = self.register[arg1 as usize] & self.register[arg2 as usize],
-            Opcode::BOR  => self.register[dest as usize] = self.register[arg1 as usize] | self.register[arg2 as usize],
+            Opcode::BOR => self.register[dest as usize] = self.register[arg1 as usize] | self.register[arg2 as usize],
             Opcode::NOT => self.register[dest as usize] = !self.register[arg1 as usize],
             Opcode::LTE => self.register[dest as usize] = (self.register[arg1 as usize] < self.register[arg2 as usize]) as u16,
             Opcode::JEQ => if self.register[dest as usize] == 0 { self.pc.set(arg1); return false;},
@@ -152,6 +161,9 @@ pub fn run<B: Backend>(
 
             frame_buffer.clear();
             frame_buffer.push_msg(buffer_screen.clone());
+            frame_buffer.update_registers(cpu.register);
+            frame_buffer.update_settings(cpu.settings.clone());
+
             terminal.draw(|f| ui::ui(f, frame_buffer))?;
 
             buffer_screen.clear();
@@ -167,7 +179,7 @@ pub fn run<B: Backend>(
         
     }
 
-    frame_buffer.push_msg(String::from("Program returned 'Ok(())'"));
+    frame_buffer.push_msg(String::from("\nProgram returned 'Ok(())'"));
     frame_buffer.push_msg(String::from("Press Q -> Back to main menu"));
 
     terminal.draw(|f| ui::ui(f, frame_buffer))?;

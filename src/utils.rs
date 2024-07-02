@@ -10,15 +10,14 @@ pub fn welcome() -> String {
 }
 
 pub fn main_menu() -> String {
-    let mut message = welcome();
-    message += "Press 1 -> The sum of numbers from 0 to 100\n";
+    let mut message: String = welcome();
+    message += "Press 1 -> Calculate sum of numbers from 0 to 100\n";
     message += "Press 2 -> Calculate Fibonacci 10th\n";
+    message += "Press 3 -> Calculate factorial of 7\n";
     message += "\nPress Q -> Quit\n";
     message
     
 }
-
-
 
 
 pub fn format<T: std::fmt::Display>(head: &str, body: T) -> String {

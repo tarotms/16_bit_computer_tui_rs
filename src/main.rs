@@ -26,6 +26,7 @@ mod gate;
 mod ui;
 mod frame_buffer;
 mod assembly;
+mod setting;
 
 fn exec_program<B: Backend>(
     cpu: &mut cpu::CPU,
@@ -59,8 +60,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     frame_buffer.push_msg(main_menu.clone());
 
     let mut cpu = cpu::CPU::new();
-
+    
+    /* todo 按键可以更新设置，设置需要click函数 */
     loop {
+        frame_buffer.update_settings(cpu.settings.clone());
+
         terminal.draw(|f| {
                 ui::ui(f, &frame_buffer)})?;
 
@@ -76,12 +80,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             } else if key.code == KeyCode::Char('2') {
                 exec_program(
                     &mut cpu,
-                    &assembly::PROGRAM_FIBONACCI,
+                    &assembly::PROGRAM_FIBONACCI_10TH,
                     &mut frame_buffer,
                     &mut terminal,
                     &main_menu,
                 )?;
-            }else if key.code == crossterm::event::KeyCode::Char('q') {
+            }else if key.code == KeyCode::Char('3') {
+                exec_program(
+                    &mut cpu,
+                    &assembly::PROGRAM_FACTORIAL_5,
+                    &mut frame_buffer,
+                    &mut terminal,
+                    &main_menu,
+                )?;
+            } else if key.code == KeyCode::Char('n') {
+                cpu.settings.0.click();///////////////////////////////
+                frame_buffer.update_settings(cpu.settings.clone());
+            } else if key.code == crossterm::event::KeyCode::Char('q') {
                 break;
             }
         }

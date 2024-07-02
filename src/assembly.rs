@@ -12,7 +12,7 @@ pub static PROGRAM_SUM_OF_0_TO_100: &[(Opcode, u16, u16, u16)] = &[
     (Opcode::END, 0, 0, 0),
 ];
 
-pub static PROGRAM_FIBONACCI: &[(Opcode, u16, u16, u16)] = &[
+pub static PROGRAM_FIBONACCI_10TH: &[(Opcode, u16, u16, u16)] = &[
     (Opcode::LDI, 0, 0, 0),   // 0.R0 = 0
     (Opcode::LDI, 1, 1, 0),   // 1.R1 = 1
     (Opcode::LDI, 2, 2, 0),   // 2.R2 = 2
@@ -25,4 +25,16 @@ pub static PROGRAM_FIBONACCI: &[(Opcode, u16, u16, u16)] = &[
     (Opcode::ADD, 2, 2, 5),   // 9.R2 = R2 + R5          │
     (Opcode::JNE, 6, 5, 0),   //10.IF R6!=0 GOTO 4 ──────┘
     (Opcode::END, 0, 0, 0),   
+];
+
+pub static PROGRAM_FACTORIAL_5: &[(Opcode, u16, u16, u16)] = &[
+    (Opcode::LDI, 0, 1, 0),   // 0.R0 = 1
+    (Opcode::LDI, 1, 1, 0),   // 1.R1 = 1
+    (Opcode::LDI, 2, 7, 0),   // 2.R2 = 7
+    (Opcode::LDI, 4, 1, 0),   // 3.R4 = 1 unit ◄───────────┐
+    (Opcode::MUL, 0, 0, 1),   // 4.R0 = R0 * R1            │
+    (Opcode::LTE, 3, 1, 2),   // 5.R3 = R1 <= R2           │
+    (Opcode::ADD, 1, 1, 4),   // 6.R1 = R1 + 1             │
+    (Opcode::JNE, 3, 3, 0),   // 7.IF R3 != 0 GOTO 3 ──────┘
+    (Opcode::END, 0, 0, 0),   // 结束程序
 ];
