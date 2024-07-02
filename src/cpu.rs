@@ -4,6 +4,7 @@ use crate::utils;
 use crate::ui;
 use crate::frame_buffer::FrameBuffer;
 use crate::setting::Setting;
+use crate::chip;
 
 use tui::{
     backend::Backend,Terminal,
@@ -73,7 +74,7 @@ impl CPU {
         self.frequency
     }
 
-    /* TODO : only nand gate implementation */
+    
 
     fn exec(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) -> bool {
         match opcode {
@@ -96,6 +97,61 @@ impl CPU {
         }
         true
     }
+
+    /* TODO : only nand gate implementation */
+    pub fn exec_nand(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) -> bool {
+        match opcode {
+            Opcode::LDI => self.register[dest as usize] = arg1,
+            Opcode::LDR => self.register[dest as usize] = self.ram.read(arg1),
+            Opcode::STR => self.ram.write(arg1, self.register[dest as usize]),
+            Opcode::JMP => {
+                self.pc.set(arg1);
+                return false;
+            },
+            Opcode::NOP => {},
+            Opcode::ADD => {
+                let (result, _, _) = chip::alu(self.register[arg1 as usize], self.register[arg2 as usize], false, false, false, false, true, false);
+                self.register[dest as usize] = result;
+            },
+            Opcode::SUB => {
+                let (result, _, _) = chip::alu(self.register[arg1 as usize], !self.register[arg2 as usize], false, false, false, true, true, false);
+                self.register[dest as usize] = result;
+            },
+            Opcode::MUL => {
+                // Implementing multiplication using ALU and logical gates is complex
+                // For now, use the built-in multiplication
+                self.register[dest as usize] = self.register[arg1 as usize] * self.register[arg2 as usize];
+            },
+            Opcode::AND => {
+                let result = chip::and16(self.register[arg1 as usize], self.register[arg2 as usize]);
+                self.register[dest as usize] = result;
+            },
+            Opcode::BOR => {
+                let result = chip::or16(self.register[arg1 as usize], self.register[arg2 as usize]);
+                self.register[dest as usize] = result;
+            },
+            Opcode::NOT => {
+                let result = chip::not16(self.register[arg1 as usize]);
+                self.register[dest as usize] = result;
+            },
+            Opcode::LTE => {
+                let result = (self.register[arg1 as usize] < self.register[arg2 as usize]) as u16;
+                self.register[dest as usize] = result;
+            },
+            Opcode::JEQ => if self.register[dest as usize] == 0 {
+                self.pc.set(arg1);
+                return false;
+            },
+            Opcode::JNE => if self.register[dest as usize] != 0 {
+                self.pc.set(arg1);
+                return false;
+            },
+            Opcode::MOV => self.register[dest as usize] = self.register[arg1 as usize],
+            Opcode::END => {},
+        }
+        true
+    }
+    
 
     fn load_command(&mut self, command: (Opcode, u16, u16, u16)) {
         self.commands.push(command);
@@ -139,8 +195,16 @@ pub fn run<B: Backend>(
 
             if opcode == Opcode::END {break 'outer;}
 
-            let should_increment = cpu.exec(opcode, dest, arg1, arg2);
+            let mut should_increment = true;
 
+            if cpu.settings[0].get() {
+                should_increment = cpu.exec_nand(opcode, dest, arg1, arg2);
+            } else {
+                should_increment = cpu.exec(opcode, dest, arg1, arg2);
+            }
+
+            
+            
             buffer_screen.push_str(&welcome);
 
             buffer_screen.push_str(&utils::format(

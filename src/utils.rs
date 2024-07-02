@@ -6,7 +6,7 @@ pub fn welcome() -> String {
     let mut welcome_message = String::new();
     welcome_message += " _ _  _   _\n";
     welcome_message += r"(/\///_/// //";
-    welcome_message += "\nRUST 16-bit computer\n";
+    welcome_message += "\nRUST 16-bit computer\n\n";
     
     welcome_message
 }

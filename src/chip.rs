@@ -23,6 +23,19 @@ pub fn full_adder(
     (sum_2, carry_out)
 }
 
+pub fn or16(x: u16, y: u16) -> u16 {
+    let mut result = 0u16;
+    for i in 0..16 {
+        let x_bit = (x >> i) & 1 == 1;
+        let y_bit = (y >> i) & 1 == 1;
+        let or_bit = gate::or(x_bit, y_bit);
+        if or_bit {
+            result |= 1 << i;
+        }
+    }
+    result
+}
+
 
 pub fn not16(x: u16) -> u16 {
     let mut result = 0u16;
