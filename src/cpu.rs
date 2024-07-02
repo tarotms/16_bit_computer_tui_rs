@@ -55,7 +55,7 @@ impl CPU {
             commands: Vec::new(),
 
             settings: vec![
-                Setting::new("Nand Mode", false, "NAND", "Built-in"),
+                Setting::new("Nand Mode (N)", false, "NAND", "Built-in"),
                 ],
         };
 
