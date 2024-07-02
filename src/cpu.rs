@@ -73,7 +73,7 @@ impl CPU {
         self.frequency
     }
 
-    /* only nand gate implementation */
+    /* TODO : only nand gate implementation */
 
     fn exec(&mut self, opcode: Opcode, dest: u16, arg1: u16, arg2: u16) -> bool {
         match opcode {
